@@ -237,10 +237,12 @@ def test_result_has_two_coupang_banners(client):
     assert body.rindex("ads-partners.coupang.com/g.js") > body.index("result-actions")
 
 
-def test_home_has_no_coupang_banner(client):
+def test_home_has_one_coupang_banner_below_grid(client):
     body = client.get("/").data.decode("utf-8")
-    assert "coupang" not in body.lower()
-    assert DISCLOSURE not in body
+    assert body.count("ads-partners.coupang.com/g.js") == 1
+    assert body.count(DISCLOSURE) == 1
+    # 첫인상 보호: 상품 그리드 아래(하단)에만 위치
+    assert body.index("풀이 상품") < body.index("ads-partners.coupang.com/g.js")
 
 
 # ---- US-009: 스모크 --------------------------------------------------
