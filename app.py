@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """사주 홈페이지 — Flask 애플리케이션."""
 import json
+from datetime import datetime, timedelta
 
 from flask import (
     Flask, render_template, request, redirect, url_for, flash, g,
@@ -10,6 +11,7 @@ from sqlalchemy import func
 
 from config import Config
 from models import db, SajuReading, Payment, Product, Review
+from saju.daily import compute_daily_fortune
 from saju.engine import calculate_saju
 from saju.interpret import interpret
 from saju.product_config import compose_reading
@@ -17,6 +19,29 @@ from seed import seed_products
 from web_utils import current_user, login_required, has_paid, has_reading
 
 CATEGORIES = ["전체", "연애", "재물", "종합", "재회"]
+
+
+def kst_today():
+    """서버 시간대와 무관하게 KST 기준 오늘 날짜."""
+    return (datetime.utcnow() + timedelta(hours=9)).date()
+
+
+def _user_birth(user):
+    """회원의 저장된 생년월일(가장 최근 풀이 이력 기준). 없으면 None."""
+    if user is None:
+        return None
+    rec = (
+        SajuReading.query.filter(
+            SajuReading.user_id == user.id, SajuReading.birth_solar.isnot(None)
+        ).order_by(SajuReading.created_at.desc()).first()
+    )
+    if rec is None:
+        return None
+    try:
+        y, m, d = map(int, rec.birth_solar.split("-"))
+        return (y, m, d)
+    except (ValueError, AttributeError):
+        return None
 
 
 def create_app(config_object=Config):
@@ -64,11 +89,40 @@ def create_app(config_object=Config):
             .limit(3)
             .all()
         )
+        # 오늘의 운세 미리보기 (US-019): 회원 + 저장된 생년월일 있을 때
+        fortune = None
+        birth = _user_birth(current_user())
+        if birth:
+            fortune = compute_daily_fortune(*birth, kst_today())
         return render_template(
             "index.html",
             products=products, popular=popular,
-            categories=CATEGORIES, active_cat=cat,
+            categories=CATEGORIES, active_cat=cat, fortune=fortune,
         )
+
+    @app.route("/today")
+    def today_fortune():
+        """오늘의 운세 (US-019). 비회원은 생년월일 입력, 회원은 자동 표시."""
+        today = kst_today()
+        birth = None
+        try:
+            if request.args.get("y"):
+                y = int(request.args["y"])
+                m = int(request.args["m"])
+                d = int(request.args["d"])
+                if not (1900 <= y <= 2100):
+                    raise ValueError
+                datetime(y, m, d)  # 날짜 유효성
+                birth = (y, m, d)
+        except (KeyError, ValueError):
+            flash("생년월일을 확인해 주세요.", "danger")
+            return redirect(url_for("today_fortune"))
+
+        if birth is None:
+            birth = _user_birth(current_user())
+
+        fortune = compute_daily_fortune(*birth, today) if birth else None
+        return render_template("today.html", fortune=fortune, today=today)
 
     @app.route("/saju")
     def saju_form():

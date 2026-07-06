@@ -500,6 +500,66 @@ input:focus, select:focus { outline: none; border-color: var(--gold); box-shadow
 .interp-outro { margin: 18px 0 0; }
 
 /* ============================================================
+   오늘의 운세 (US-019)
+   ============================================================ */
+.fortune-stars { color: var(--gold); letter-spacing: 2px; white-space: nowrap; }
+.fortune-stars.big { font-size: 1.5rem; }
+
+/* 홈 미리보기 스트립 */
+.fortune-strip {
+  max-width: 1160px; margin: 0 auto 24px; padding: 16px 22px;
+  background: linear-gradient(120deg, var(--card), var(--card-alt));
+  border: 1px solid var(--gold-soft); border-radius: var(--radius);
+  box-shadow: var(--shadow-soft); display: flex; align-items: center; gap: 18px;
+  text-decoration: none; color: var(--ink); transition: transform .15s, box-shadow .15s;
+}
+.fortune-strip:hover { transform: translateY(-2px); box-shadow: var(--shadow); }
+.fs-label {
+  font-family: "Nanum Myeongjo", serif; font-weight: 800; font-size: 0.95rem;
+  color: var(--brown); line-height: 1.3; text-align: center;
+  padding-right: 16px; border-right: 1px solid var(--line); flex-shrink: 0;
+}
+.fs-body { flex: 1; min-width: 0; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+.fs-summary { color: var(--ink-soft); font-size: 0.95rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.fs-arrow { color: var(--gold); flex-shrink: 0; }
+
+/* 운세 상세 카드 */
+.fortune-card { max-width: 640px; }
+.fortune-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+.fortune-ilgan {
+  background: var(--card-alt); border: 1px solid var(--line); border-radius: 999px;
+  padding: 5px 14px; font-size: 0.85rem; color: var(--ink-soft); font-weight: 700;
+}
+.fortune-summary {
+  font-family: "Nanum Myeongjo", serif; font-size: 1.2rem; line-height: 1.65;
+  color: var(--ink); margin: 0 0 22px; text-align: center;
+}
+.fortune-cats { display: grid; gap: 14px; margin-bottom: 20px; }
+.fortune-cat { border-top: 1px dashed var(--line); padding-top: 14px; }
+.fc-head { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.fc-head b { font-family: "Nanum Myeongjo", serif; }
+.fc-head .fortune-stars { margin-left: auto; font-size: 0.9rem; }
+.fortune-cat p { margin: 0; color: var(--ink-soft); font-size: 0.94rem; }
+.fortune-advice {
+  background: var(--card-alt); border-radius: 14px; padding: 14px 18px;
+}
+.fortune-advice b { color: var(--brown); font-size: 0.88rem; letter-spacing: 1px; }
+.fortune-advice p { margin: 4px 0 0; color: var(--ink-soft); font-size: 0.95rem; }
+
+/* 재록 선생 퍼널 */
+.fortune-funnel {
+  max-width: 640px; display: flex; align-items: center; gap: 18px;
+}
+.fortune-funnel img {
+  width: 72px; height: 72px; border-radius: 50%; object-fit: cover;
+  border: 2px solid var(--gold-soft); flex-shrink: 0;
+}
+.ff-body { flex: 1; min-width: 0; }
+.ff-body b { font-family: "Nanum Myeongjo", serif; color: var(--brown); }
+.ff-body p { margin: 4px 0 0; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.6; }
+.fortune-funnel .btn { flex-shrink: 0; }
+
+/* ============================================================
    모바일 하단 고정 네비게이션 (US-016)
    ============================================================ */
 .bottom-nav { display: none; }
@@ -561,6 +621,10 @@ input:focus, select:focus { outline: none; border-color: var(--gold); box-shadow
   .result-actions { flex-wrap: wrap; }
   /* 스토어 (US-015) */
   .product-grid, .narrow-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  /* 오늘의 운세 (US-019) */
+  .fortune-strip { padding: 14px 16px; gap: 12px; }
+  .fs-summary { white-space: normal; font-size: 0.88rem; }
+  .fortune-funnel { flex-direction: column; text-align: center; }
   .store-hero { flex-direction: column; text-align: center; gap: 14px; padding: 24px 20px; }
   .store-hero-title { font-size: 1.45rem; }
   /* 하단 고정 네비 (US-016): 모바일에서만 표시 */

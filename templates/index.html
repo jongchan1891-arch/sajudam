@@ -17,6 +17,22 @@
   </a>
 </section>
 
+<!-- 오늘의 운세 카드 (US-019) -->
+<a class="fortune-strip" href="{{ url_for('today_fortune') }}">
+  <span class="fs-label">오늘의<br>운세</span>
+  {% if fortune %}
+  <span class="fs-body">
+    <span class="fortune-stars">{{ fortune.stars }}</span>
+    <span class="fs-summary">{{ fortune.summary }}</span>
+  </span>
+  {% else %}
+  <span class="fs-body">
+    <span class="fs-summary">생년월일만 입력하면 오늘의 별점 운세를 볼 수 있어요</span>
+  </span>
+  {% endif %}
+  <span class="fs-arrow">→</span>
+</a>
+
 <!-- 카테고리 필터 탭 -->
 <nav class="cat-tabs" aria-label="카테고리">
   {% for cat in categories %}

@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}오늘의 운세{% endblock %}
+{% block content %}
+
+<section class="result-head">
+  <p class="hero-kicker">今日 運勢</p>
+  <h1 class="result-title">오늘의 운세</h1>
+  <p class="result-meta">{{ today.strftime('%Y년 %m월 %d일') }}{% if fortune %} · {{ fortune.today_gapja }}일{% endif %}</p>
+</section>
+
+{% if fortune %}
+<section class="card fortune-card">
+  <div class="fortune-top">
+    <span class="fortune-ilgan">일간 {{ fortune.user_ilgan }}({{ fortune.user_ilgan_ohaeng }})</span>
+    <span class="fortune-stars big">{{ fortune.stars }}</span>
+  </div>
+  <p class="fortune-summary">"{{ fortune.summary }}"</p>
+
+  <div class="fortune-cats">
+    {% for cat, icon in [('재물','◈'),('애정','❀'),('건강','☘')] %}
+    {% set c = fortune.categories[cat] %}
+    <div class="fortune-cat">
+      <div class="fc-head">
+        <span class="interp-icon">{{ icon }}</span><b>{{ cat }}</b>
+        <span class="fortune-stars">{{ c.stars }}</span>
+      </div>
+      <p>{{ c.text }}</p>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="fortune-advice">
+    <b>오늘의 조언</b>
+    <p>{{ fortune.advice }}</p>
+  </div>
+</section>
+
+<!-- 재록 선생 퍼널 (운세 → 유료 상품) -->
+<section class="card fortune-funnel">
+  <img src="{{ url_for('static', filename='img/products/jaerok_profile.jpg') }}" alt="재록">
+  <div class="ff-body">
+    <b>재록 선생의 한마디</b>
+    <p>"오늘의 재물 기운은 맛보기일 뿐 — 곳간이 차오르는 때는 사주 원국이 알고 있지."</p>
+  </div>
+  <a href="{{ url_for('product_detail', slug='jaerok-money') }}" class="btn btn-primary">재물운 더 깊게 보기</a>
+</section>
+
+<div class="result-actions center">
+  <a href="{{ url_for('today_fortune') }}" class="btn btn-ghost">다른 생년월일로 보기</a>
+</div>
+
+{% else %}
+<section class="card form-card">
+  <h2 class="card-title">생년월일 입력 <span class="subtle">(양력)</span></h2>
+  <p class="hint" style="margin-top:-10px;margin-bottom:18px">
+    생년월일만 입력하면 오늘의 운세를 바로 확인할 수 있습니다.
+    {% if not current_user %}회원이라면 <a class="link" href="{{ url_for('auth.login') }}">로그인</a> 후 홈에서 바로 보입니다.{% endif %}
+  </p>
+  <form method="get" action="{{ url_for('today_fortune') }}" class="saju-form">
+    <div class="field-grid">
+      <div class="field">
+        <label for="y">연도</label>
+        <input type="number" id="y" name="y" min="1900" max="2100" placeholder="1990" required>
+      </div>
+      <div class="field">
+        <label for="m">월</label>
+        <input type="number" id="m" name="m" min="1" max="12" placeholder="6" required>
+      </div>
+      <div class="field">
+        <label for="d">일</label>
+        <input type="number" id="d" name="d" min="1" max="31" placeholder="15" required>
+      </div>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">오늘의 운세 보기</button>
+  </form>
+</section>
+{% endif %}
+{% endblock %}
