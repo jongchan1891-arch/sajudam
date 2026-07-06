@@ -10,6 +10,9 @@ venv/
 # 검증 스크린샷
 _shots/
 
+# 정적 미리보기 내보내기 (export_preview.py 생성물)
+preview/
+
 # Flask 인스턴스 (DB 등)
 instance/
 saju.db
