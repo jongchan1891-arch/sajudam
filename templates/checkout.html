@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}결제{% endblock %}
+{% block content %}
+<section class="card checkout-card">
+  <h1 class="card-title">결제하기</h1>
+  <div class="checkout-summary">
+    <div class="cs-row"><span>상품</span><b>{{ product.name }}</b></div>
+    <div class="cs-row"><span>주문번호</span><b class="mono">{{ order_id }}</b></div>
+    <div class="cs-row total"><span>결제 금액</span><b>{{ "{:,}".format(product.amount) }}원</b></div>
+  </div>
+
+  <div class="test-note">
+    <b>테스트 결제 안내</b>
+    <p>토스페이먼츠 샌드박스입니다. 카드 결제 창에서 아무 <b>테스트 카드</b>(예: 카드번호 <span class="mono">4330-1234-1234-1234</span>, 유효기간 미래, 임의 비밀번호/생년월일)로 승인 흐름을 확인할 수 있습니다. 실제 금액은 청구되지 않습니다.</p>
+  </div>
+
+  <button id="payBtn" class="btn btn-primary btn-block">{{ "{:,}".format(product.amount) }}원 결제</button>
+  <a href="{{ url_for('pricing') }}" class="btn btn-ghost btn-block">취소</a>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://js.tosspayments.com/v1/payment"></script>
+<script>
+  const clientKey = "{{ client_key }}";
+  const tossPayments = TossPayments(clientKey);
+  document.getElementById('payBtn').addEventListener('click', function () {
+    tossPayments.requestPayment('카드', {
+      amount: {{ product.amount }},
+      orderId: "{{ order_id }}",
+      orderName: "{{ product.name }}",
+      customerEmail: "{{ customer_email }}",
+      successUrl: window.location.origin + "{{ url_for('payment.success') }}",
+      failUrl: window.location.origin + "{{ url_for('payment.fail') }}?orderId={{ order_id }}",
+    }).catch(function (error) {
+      if (error.code === 'USER_CANCEL') {
+        window.location.href = "{{ url_for('payment.fail') }}?code=USER_CANCEL&message=사용자가 결제를 취소했습니다&orderId={{ order_id }}";
+      } else {
+        window.location.href = "{{ url_for('payment.fail') }}?code=" + error.code + "&message=" + encodeURIComponent(error.message) + "&orderId={{ order_id }}";
+      }
+    });
+  });
+</script>
+{% endblock %}

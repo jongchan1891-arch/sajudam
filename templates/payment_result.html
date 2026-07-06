@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}결제 결과{% endblock %}
+{% block content %}
+<section class="card result-card center">
+  {% if ok %}
+    <div class="pay-icon ok">✓</div>
+    <h1 class="card-title">결제가 완료되었습니다</h1>
+    <div class="checkout-summary">
+      <div class="cs-row"><span>상품</span><b>{{ pay.product_name }}</b></div>
+      <div class="cs-row"><span>주문번호</span><b class="mono">{{ pay.order_id }}</b></div>
+      <div class="cs-row"><span>결제수단</span><b>{{ pay.method or '카드' }}</b></div>
+      <div class="cs-row total"><span>결제 금액</span><b>{{ "{:,}".format(pay.amount) }}원</b></div>
+    </div>
+    <p class="hint">테스트(샌드박스) 결제이므로 실제 청구는 없습니다.</p>
+  {% else %}
+    <div class="pay-icon fail">!</div>
+    <h1 class="card-title">결제가 완료되지 않았습니다</h1>
+    <p class="pay-error">{{ error or '결제가 취소되었거나 실패했습니다.' }}</p>
+    {% if pay %}<p class="mono tiny">주문번호 {{ pay.order_id }}</p>{% endif %}
+  {% endif %}
+  <div class="result-actions center">
+    <a href="{{ url_for('pricing') }}" class="btn btn-ghost">상품으로</a>
+    {% if current_user %}<a href="{{ url_for('mypage') }}" class="btn btn-primary">마이페이지</a>{% endif %}
+  </div>
+</section>
+{% endblock %}

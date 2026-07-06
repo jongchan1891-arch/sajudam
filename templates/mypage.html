@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block title %}마이페이지{% endblock %}
+{% block content %}
+<section class="result-head">
+  <p class="hero-kicker">MY PAGE</p>
+  <h1 class="result-title">{{ current_user.email }}</h1>
+</section>
+
+<section class="card">
+  <h2 class="card-title">사주 계산 이력 <span class="subtle">{{ readings|length }}건</span></h2>
+  {% if readings %}
+    <table class="history">
+      <thead><tr><th>일자</th><th>이름</th><th>생년월일</th><th>팔자</th><th></th></tr></thead>
+      <tbody>
+        {% for rec in readings %}
+        <tr>
+          <td class="tiny">{{ rec.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>{{ rec.name or '-' }}</td>
+          <td class="mono">{{ rec.birth_solar }}{% if rec.birth_hour is not none %} {{ '%02d'|format(rec.birth_hour) }}시{% endif %}</td>
+          <td>{{ rec.palja }}</td>
+          <td><a href="{{ url_for('reading_detail', reading_id=rec.id) }}" class="link">보기</a></td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty">아직 계산 이력이 없습니다. <a href="{{ url_for('index') }}">사주 보러가기</a></p>
+  {% endif %}
+</section>
+
+<section class="card">
+  <h2 class="card-title">결제 이력 <span class="subtle">{{ payments|length }}건</span></h2>
+  {% if payments %}
+    <table class="history">
+      <thead><tr><th>일자</th><th>상품</th><th>금액</th><th>상태</th><th>주문번호</th></tr></thead>
+      <tbody>
+        {% for p in payments %}
+        <tr>
+          <td class="tiny">{{ p.created_at.strftime('%Y-%m-%d') }}</td>
+          <td>{{ p.product_name }}</td>
+          <td>{{ "{:,}".format(p.amount) }}원</td>
+          <td><span class="status status-{{ p.status }}">{{ p.status }}</span></td>
+          <td class="mono tiny">{{ p.order_id }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  {% else %}
+    <p class="empty">결제 이력이 없습니다. <a href="{{ url_for('pricing') }}">상품 보러가기</a></p>
+  {% endif %}
+</section>
+{% endblock %}

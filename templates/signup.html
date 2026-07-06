@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}회원가입{% endblock %}
+{% block content %}
+<section class="card auth-card">
+  <h1 class="card-title">회원가입</h1>
+  <form method="post" action="{{ url_for('auth.signup') }}" class="saju-form">
+    <div class="field">
+      <label for="email">이메일</label>
+      <input type="email" id="email" name="email" value="{{ email or '' }}" required autofocus>
+    </div>
+    <div class="field">
+      <label for="password">비밀번호 <span class="opt">(6자 이상)</span></label>
+      <input type="password" id="password" name="password" required minlength="6">
+    </div>
+    <div class="field">
+      <label for="password2">비밀번호 확인</label>
+      <input type="password" id="password2" name="password2" required minlength="6">
+    </div>
+    <button type="submit" class="btn btn-primary btn-block">가입하기</button>
+  </form>
+  <p class="auth-alt">이미 계정이 있으신가요? <a href="{{ url_for('auth.login') }}">로그인</a></p>
+</section>
+{% endblock %}

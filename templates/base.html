@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}사주팔자{% endblock %} · 사주담</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <header class="site-header">
+    <div class="wrap header-inner">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-name">사주담<span class="brand-seal">印</span></span>
+        <span class="brand-tagline">당신의 운명을 담다</span>
+      </a>
+      <nav class="nav">
+        <a href="{{ url_for('index') }}">사주풀이</a>
+        <a href="{{ url_for('pricing') }}">해석 상품</a>
+        {% if current_user %}
+          <a href="{{ url_for('mypage') }}">마이페이지</a>
+        {% endif %}
+        <span class="nav-sep"></span>
+        {% if current_user %}
+          <a class="muted" href="{{ url_for('auth.logout') }}">로그아웃</a>
+        {% else %}
+          <a class="btn-outline" href="{{ url_for('auth.login') }}">로그인</a>
+          <a class="btn-nav" href="{{ url_for('auth.signup') }}">회원가입</a>
+        {% endif %}
+      </nav>
+    </div>
+  </header>
+
+  <main class="main">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="flashes">
+          {% for cat, msg in messages %}
+            <div class="flash flash-{{ cat }}">{{ msg }}</div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <p>사주담 · 만세력 기반 사주팔자 · 태양황경(절기) 정밀 계산 · 규칙기반 해설</p>
+      <p class="tiny">본 서비스는 포트폴리오·데모 목적이며, 결제는 토스페이먼츠 <b>테스트(샌드박스)</b> 환경입니다.</p>
+    </div>
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

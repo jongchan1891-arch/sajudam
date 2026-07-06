@@ -1,0 +1,24 @@
+# 가상환경
+venv/
+
+# 로그
+*.log
+
+# OMC 세션/상태
+.omc/
+
+# 검증 스크린샷
+_shots/
+
+# Flask 인스턴스 (DB 등)
+instance/
+saju.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Claude Code 로컬 설정
+.claude/settings.local.json
