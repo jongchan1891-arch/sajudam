@@ -19,8 +19,13 @@
     {% if pay %}<p class="mono tiny">주문번호 {{ pay.order_id }}</p>{% endif %}
   {% endif %}
   <div class="result-actions center">
-    <a href="{{ url_for('pricing') }}" class="btn btn-ghost">상품으로</a>
-    {% if current_user %}<a href="{{ url_for('mypage') }}" class="btn btn-primary">마이페이지</a>{% endif %}
+    {% if ok and product %}
+      <a href="{{ url_for('saju_form', product=product.slug) }}" class="btn btn-primary">풀이 시작하기</a>
+      <a href="{{ url_for('pricing') }}" class="btn btn-ghost">상품으로</a>
+    {% else %}
+      <a href="{{ url_for('pricing') }}" class="btn btn-ghost">상품으로</a>
+      {% if current_user %}<a href="{{ url_for('mypage') }}" class="btn btn-primary">마이페이지</a>{% endif %}
+    {% endif %}
   </div>
 </section>
 {% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }}{% endblock %}
+{% block content %}
+
+<section class="detail-hero">
+  {% if product.hero_image %}
+    <img src="{{ url_for('static', filename='img/products/' + product.hero_image) }}"
+         alt="{{ product.name }}" onerror="this.remove()">
+  {% else %}
+    <span class="detail-hero-placeholder">☯</span>
+  {% endif %}
+</section>
+
+<section class="card detail-card">
+  <div class="detail-head">
+    <span class="pc-character">{{ product.character_name }}</span>
+    <span class="pc-cat">{{ product.category }}</span>
+  </div>
+  <h1 class="detail-title">{{ product.name }}</h1>
+  <p class="detail-tagline">{{ product.tagline }}</p>
+  <div class="detail-meta">
+    <span class="detail-price">{{ "무료" if product.price == 0 else "{:,}원".format(product.price) }}</span>
+    {% if avg_rating %}<span class="detail-rating">★ {{ avg_rating }} ({{ reviews|length }})</span>{% endif %}
+    <span class="detail-count">풀이 {{ reading_count }}회</span>
+  </div>
+  <p class="detail-desc">{{ product.description }}</p>
+  {% if product.price > 0 and not paid %}
+    <a href="{{ url_for('payment.checkout', product=product.slug) }}" class="btn btn-primary btn-lg btn-block">
+      {{ "{:,}".format(product.price) }}원 결제하고 풀이 시작
+    </a>
+  {% else %}
+    <a href="{{ url_for('saju_form', product=product.slug) }}" class="btn btn-primary btn-lg btn-block">
+      풀이 시작하기
+    </a>
+  {% endif %}
+</section>
+
+<section class="card detail-card" id="reviews">
+  <h2 class="card-title">리뷰
+    <span class="subtle">{% if avg_rating %}평균 ★ {{ avg_rating }} · {{ reviews|length }}개{% else %}아직 리뷰가 없습니다{% endif %}</span>
+  </h2>
+
+  {% if can_review %}
+  <form method="post" action="{{ url_for('product_review', slug=product.slug) }}" class="review-form">
+    <div class="field">
+      <label>{{ "리뷰 수정" if my_review else "리뷰 남기기" }} <span class="opt">(풀이를 받으셨네요!)</span></label>
+      <div class="star-pick">
+        {% for v in [5,4,3,2,1] %}
+          <input type="radio" id="star{{ v }}" name="rating" value="{{ v }}"
+                 {{ 'checked' if (my_review and my_review.rating == v) or (not my_review and v == 5) }}>
+          <label for="star{{ v }}">★</label>
+        {% endfor %}
+      </div>
+      <textarea name="content" rows="3" maxlength="500" required
+                placeholder="풀이는 어떠셨나요?">{{ my_review.content if my_review }}</textarea>
+    </div>
+    <button type="submit" class="btn btn-primary">{{ "수정하기" if my_review else "등록하기" }}</button>
+  </form>
+  {% elif current_user %}
+  <p class="hint">이 상품의 풀이를 받으신 후에 리뷰를 남길 수 있습니다.</p>
+  {% else %}
+  <p class="hint"><a class="link" href="{{ url_for('auth.login') }}">로그인</a> 후 풀이를 받으시면 리뷰를 남길 수 있습니다.</p>
+  {% endif %}
+
+  {% if reviews %}
+  <ul class="review-list">
+    {% for rv in reviews %}
+    <li class="review-item">
+      <div class="review-head">
+        <span class="review-stars">{% for _ in range(rv.rating) %}★{% endfor %}{% for _ in range(5 - rv.rating) %}☆{% endfor %}</span>
+        <span class="review-who">{{ rv.user.email.split('@')[0] }}***</span>
+        <span class="review-date">{{ rv.created_at.strftime('%Y-%m-%d') }}</span>
+      </div>
+      <p class="review-body">{{ rv.content }}</p>
+    </li>
+    {% endfor %}
+  </ul>
+  {% endif %}
+</section>
+
+<div class="result-actions center">
+  <a href="{{ url_for('index') }}" class="btn btn-ghost">다른 상품 보기</a>
+</div>
+{% endblock %}

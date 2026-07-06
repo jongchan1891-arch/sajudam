@@ -60,21 +60,34 @@
 {% include "partials/coupang_banner.html" %}
 
 <section class="card">
-  <h2 class="card-title">운세 해설</h2>
+  <h2 class="card-title">{{ product.name if product else "운세 해설" }}
+    {% if product %}<span class="subtle">by {{ product.character_name }}</span>{% endif %}
+  </h2>
+  {% if composed.intro %}<p class="interp-intro">{{ composed.intro }}</p>{% endif %}
   <div class="interp-grid">
-    {% for cat, icon in [('성격','◍'),('직업','◎'),('재물','◈'),('연애','❀')] %}
+    {% for title, icon, text in composed.sections %}
     <div class="interp">
-      <h3><span class="interp-icon">{{ icon }}</span> {{ cat }}</h3>
-      <p>{{ reading.categories[cat] }}</p>
+      <h3><span class="interp-icon">{{ icon }}</span> {{ title }}</h3>
+      <p>{{ text }}</p>
     </div>
     {% endfor %}
   </div>
+  {% if composed.outro %}<p class="interp-outro">{{ composed.outro }}</p>{% endif %}
 </section>
 
 <div class="result-actions">
-  <a href="{{ url_for('index') }}" class="btn btn-ghost">다시 계산</a>
-  <a href="{{ url_for('pricing') }}" class="btn btn-primary">프리미엄 해석 보기</a>
+  <a href="{{ url_for('saju_form', product=product.slug if product else None) }}" class="btn btn-ghost">다시 계산</a>
+  {% if product and product.slug == 'jaerok-free' %}
+    <a href="{{ url_for('product_detail', slug='jaerok-money') }}" class="btn btn-primary">재물운 심층풀이 보기</a>
+  {% else %}
+    <a href="{{ url_for('index') }}" class="btn btn-primary">다른 풀이 상품 보기</a>
+  {% endif %}
 </div>
+{% if product %}
+<p class="hint center">이 풀이가 마음에 드셨다면
+  <a class="link" href="{{ url_for('product_detail', slug=product.slug) }}#reviews">리뷰</a>를 남겨주세요.
+</p>
+{% endif %}
 
 {% include "partials/coupang_banner.html" %}
 {% endblock %}

@@ -2,7 +2,7 @@
 <html lang="ko">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>{% block title %}사주팔자{% endblock %} · 사주담</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,7 +17,7 @@
         <span class="brand-tagline">당신의 운명을 담다</span>
       </a>
       <nav class="nav">
-        <a href="{{ url_for('index') }}">사주풀이</a>
+        <a href="{{ url_for('saju_form') }}">사주풀이</a>
         <a href="{{ url_for('pricing') }}">해석 상품</a>
         {% if current_user %}
           <a href="{{ url_for('mypage') }}">마이페이지</a>
@@ -53,6 +53,22 @@
       <p class="tiny">본 서비스는 포트폴리오·데모 목적이며, 결제는 토스페이먼츠 <b>테스트(샌드박스)</b> 환경입니다.</p>
     </div>
   </footer>
+  <!-- 모바일 하단 고정 네비게이션 (US-016) -->
+  <nav class="bottom-nav" aria-label="모바일 메뉴">
+    <a href="{{ url_for('index') }}"
+       class="bn-item {{ 'active' if request.endpoint in ('index', 'product_detail') }}">
+      <span class="bn-icon">⌂</span><span>홈</span>
+    </a>
+    <a href="{{ url_for('saju_form') }}"
+       class="bn-item {{ 'active' if request.endpoint in ('saju_form', 'calculate') }}">
+      <span class="bn-icon">☯</span><span>사주풀이</span>
+    </a>
+    <a href="{{ url_for('mypage') if current_user else url_for('auth.login') }}"
+       class="bn-item {{ 'active' if request.endpoint in ('mypage', 'auth.login', 'auth.signup') }}">
+      <span class="bn-icon">◉</span><span>마이</span>
+    </a>
+  </nav>
+
   {% block scripts %}{% endblock %}
 </body>
 </html>

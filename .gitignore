@@ -10,6 +10,9 @@ venv/
 # 검증 스크린샷
 _shots/
 
+# 상품 이미지 원본 (웹용 jpg만 커밋)
+static/img/products/originals/
+
 # 정적 미리보기 내보내기 (export_preview.py 생성물)
 preview/
 

@@ -1,33 +1,17 @@
 {% extends "base.html" %}
 {% block title %}해석 상품{% endblock %}
 {% block content %}
-<section class="hero">
-  <p class="hero-kicker">PREMIUM</p>
-  <h1 class="hero-title">더 깊은 사주 해석</h1>
-  <p class="hero-sub">토스페이먼츠 테스트(샌드박스) 결제로 결제 흐름을 체험할 수 있습니다.</p>
+<section class="result-head">
+  <p class="hero-kicker">解釋 商品</p>
+  <h1 class="result-title">해석 상품</h1>
+  <p class="result-meta">도령들의 유료 심층 풀이 상품입니다.</p>
 </section>
 
-<section class="pricing-grid">
-  {% for key, p in products.items() %}
-  <div class="price-card {% if key == 'premium' %}price-featured{% endif %}">
-    {% if key == 'premium' %}<span class="ribbon">추천</span>{% endif %}
-    <h2>{{ p.name }}</h2>
-    <p class="price">{{ "{:,}".format(p.amount) }}<span>원</span></p>
-    <ul class="price-feats">
-      {% if key == 'basic' %}
-      <li>사주 원국 상세 해설</li>
-      <li>오행 균형 리포트</li>
-      <li>성격·직업 심화</li>
-      {% else %}
-      <li>기본 상품 전체 포함</li>
-      <li>대운·세운 흐름 해설</li>
-      <li>재물·연애·건강 종합</li>
-      <li>맞춤 개운 가이드</li>
-      {% endif %}
-    </ul>
-    <a href="{{ url_for('payment.checkout', product=key) }}" class="btn btn-primary btn-block">결제하기</a>
-  </div>
+<div class="product-grid narrow-grid">
+  {% for p in products %}
+    {% include "partials/product_card.html" %}
   {% endfor %}
-</section>
-<p class="hint center">※ 테스트 카드번호로 실제 결제 없이 승인 흐름을 확인할 수 있습니다. (README 참고)</p>
+</div>
+
+<p class="hint center">모든 결제는 토스페이먼츠 테스트(샌드박스) 환경으로, 실제 청구는 없습니다.</p>
 {% endblock %}

@@ -9,8 +9,8 @@ from flask import (
     current_app, abort, session,
 )
 
-from models import db, Payment
-from web_utils import PRODUCTS, current_user
+from models import db, Payment, Product
+from web_utils import current_user
 
 bp = Blueprint("payment", __name__, url_prefix="/payment")
 
@@ -35,18 +35,21 @@ def confirm_payment(secret_key, confirm_url, payment_key, order_id, amount, time
 
 @bp.route("/checkout")
 def checkout():
-    product_key = request.args.get("product", "basic")
-    if product_key not in PRODUCTS:
+    slug = request.args.get("product", "")
+    product = Product.query.filter_by(slug=slug, is_active=True).first()
+    if product is None:
         abort(404)
-    product = PRODUCTS[product_key]
+    if product.price == 0:  # 무료 상품은 결제 없이 바로 풀이로
+        return redirect(url_for("saju_form", product=product.slug))
     order_id = "order_" + uuid.uuid4().hex[:20]
 
     user = current_user()
     pay = Payment(
         user_id=user.id if user else None,
+        product_id=product.id,
         order_id=order_id,
-        product_name=product["name"],
-        amount=product["amount"],
+        product_name=product.name,
+        amount=product.price,
         status="READY",
     )
     db.session.add(pay)
@@ -57,7 +60,6 @@ def checkout():
         client_key=current_app.config["TOSS_CLIENT_KEY"],
         order_id=order_id,
         product=product,
-        product_key=product_key,
         customer_email=user.email if user else "",
     )
 
@@ -91,7 +93,10 @@ def success():
         pay.payment_key = payment_key
         pay.method = data.get("method", "")
         db.session.commit()
-        return render_template("payment_result.html", ok=True, pay=pay, data=data)
+        product = db.session.get(Product, pay.product_id) if pay.product_id else None
+        return render_template(
+            "payment_result.html", ok=True, pay=pay, data=data, product=product,
+        )
     else:
         pay.status = "FAILED"
         db.session.commit()

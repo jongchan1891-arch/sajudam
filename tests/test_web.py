@@ -129,7 +129,7 @@ def test_toss_auth_header():
 
 
 def test_checkout_renders_with_client_key(client, app):
-    r = client.get("/payment/checkout?product=basic")
+    r = client.get("/payment/checkout?product=jaerok-money")
     assert r.status_code == 200
     body = r.data.decode("utf-8")
     assert app.config["TOSS_CLIENT_KEY"] in body
@@ -170,7 +170,7 @@ def test_confirm_payment_builds_request(monkeypatch):
 
 def test_payment_success_flow(client, app, monkeypatch):
     # 체크아웃으로 주문 생성
-    client.get("/payment/checkout?product=basic")
+    client.get("/payment/checkout?product=jaerok-money")
     with app.app_context():
         pay = Payment.query.filter_by(status="READY").first()
         order_id = pay.order_id
@@ -191,7 +191,7 @@ def test_payment_success_flow(client, app, monkeypatch):
 
 
 def test_payment_amount_mismatch(client, app, monkeypatch):
-    client.get("/payment/checkout?product=basic")
+    client.get("/payment/checkout?product=jaerok-money")
     with app.app_context():
         order_id = Payment.query.filter_by(status="READY").first().order_id
     # 금액 위변조 (9900 != 100)
@@ -245,5 +245,6 @@ def test_home_has_no_coupang_banner(client):
 
 # ---- US-009: 스모크 --------------------------------------------------
 def test_smoke_routes(client):
-    for path in ["/", "/pricing", "/login", "/signup", "/payment/checkout?product=premium"]:
+    for path in ["/", "/saju", "/pricing", "/login", "/signup",
+                 "/payment/checkout?product=premium-total"]:
         assert client.get(path).status_code == 200

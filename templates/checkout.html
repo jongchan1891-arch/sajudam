@@ -6,7 +6,7 @@
   <div class="checkout-summary">
     <div class="cs-row"><span>상품</span><b>{{ product.name }}</b></div>
     <div class="cs-row"><span>주문번호</span><b class="mono">{{ order_id }}</b></div>
-    <div class="cs-row total"><span>결제 금액</span><b>{{ "{:,}".format(product.amount) }}원</b></div>
+    <div class="cs-row total"><span>결제 금액</span><b>{{ "{:,}".format(product.price) }}원</b></div>
   </div>
 
   <div class="test-note">
@@ -14,7 +14,7 @@
     <p>토스페이먼츠 샌드박스입니다. 카드 결제 창에서 아무 <b>테스트 카드</b>(예: 카드번호 <span class="mono">4330-1234-1234-1234</span>, 유효기간 미래, 임의 비밀번호/생년월일)로 승인 흐름을 확인할 수 있습니다. 실제 금액은 청구되지 않습니다.</p>
   </div>
 
-  <button id="payBtn" class="btn btn-primary btn-block">{{ "{:,}".format(product.amount) }}원 결제</button>
+  <button id="payBtn" class="btn btn-primary btn-block">{{ "{:,}".format(product.price) }}원 결제</button>
   <a href="{{ url_for('pricing') }}" class="btn btn-ghost btn-block">취소</a>
 </section>
 {% endblock %}
@@ -26,7 +26,7 @@
   const tossPayments = TossPayments(clientKey);
   document.getElementById('payBtn').addEventListener('click', function () {
     tossPayments.requestPayment('카드', {
-      amount: {{ product.amount }},
+      amount: {{ product.price }},
       orderId: "{{ order_id }}",
       orderName: "{{ product.name }}",
       customerEmail: "{{ customer_email }}",

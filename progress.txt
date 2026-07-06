@@ -1,8 +1,8 @@
 사주담 (SajuDam) — 진행 기록 / 검증 근거
 ==========================================
 
-상태: 전체 스토리 US-001~US-010, US-012~US-013 인수조건 개별 검증 완료 (증거 기반)
-테스트: pytest 36/36 PASS (test_engine 12, test_interpret 4, test_web 20)
+상태: 전체 스토리 US-001~US-010, US-012~US-018(v2) 인수조건 개별 검증 완료 (증거 기반)
+테스트: pytest 55/55 PASS (test_engine 12, test_interpret 4, test_web 20, test_products 19)
 실행: python app.py → 200 (기본 5000, 데모 확인은 PORT=5001 사용, 5000은 기존 크롤러 앱 점유)
 
 핵심 구현
@@ -55,6 +55,24 @@ US-013 쿠팡 파트너스 배너 (2026-07-06)
 - .ad-banner(max-width 750, 중앙, 상하 여백) + .ad-disclosure(ink-faint 고지 문구)
   + .ad-slot(overflow-x auto → 모바일에서 슬롯 내부만 스크롤, 페이지는 안 뚫음).
 - 검증: 배너 2개/홈 0개/고지문구 테스트 4건 + 1280 스크린샷(실광고 로드) + 375 스크린샷.
+
+v2 상품 중심 개편 US-014~018 (2026-07-06)
+------------------------------------------
+- 모델: Product(캐릭터명/상품명/한줄카피/썸네일/카테고리/가격) + Review(1인 1리뷰
+  UniqueConstraint), SajuReading/Payment에 product_id 연결. seed.py 시드 5종(4카테고리).
+- 상품별 해설: saju/product_config.py — 엔진/interpret 무수정, 위에서 섹션 구성·
+  캐릭터 인트로/아웃트로·오행 기반 집중 조언을 상품별 조립 (compose_reading).
+- 라우트: / 스토어 홈(?cat 필터+인기랭킹=풀이횟수), /saju 입력폼(유료는 결제 가드),
+  /product/<slug> 상세+리뷰, /product/<slug>/review 작성/수정(풀이 회원만),
+  /payment/checkout Product 기반(무료는 /saju 리다이렉트).
+- UI: 하단 고정 네비(768px 이하, safe-area, 활성 표시), 상품 카드 그리드(4/2/1열),
+  카테고리 탭, 랭킹 스트립, 상세 히어로 배너, 별점 리뷰 폼.
+- 이미지: 원본(2048px, 7~8MB) → originals/(git 제외) 이동, 웹용 JPEG 생성
+  (profile 400/썸네일 640/히어로 1280, 총 425KB). 썸네일 없는 상품은 ☯ 플레이스홀더.
+- 교훈: grid 아이템 기본 min-width:auto가 nowrap 텍스트에 밀려 1px 가로 오버플로
+  발생 → .rank-list li { min-width: 0 } 필요 (하니스 판정으로 발견).
+- 검증: 스크린샷 6종(_shots/v2-*) — 홈/상세 1280+375, 결과/폼 375, 전부
+  doc.scrollWidth==viewport PASS. 로컬 saju.db는 스키마 변경으로 삭제 후 재생성.
 
 학습/패턴
 ---------

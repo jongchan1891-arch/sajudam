@@ -68,16 +68,18 @@ pytest -q
 ## 구조
 ```
 사주/
-├── app.py              # Flask 팩토리 + 메인 라우트(입력/계산/결과/마이페이지)
+├── app.py              # Flask 팩토리 + 라우트(스토어 홈/사주풀이/상품 상세/리뷰/마이)
 ├── config.py           # 설정 (DB, 토스 키)
-├── models.py           # User / SajuReading / Payment (SQLAlchemy)
+├── models.py           # User / Product / Review / SajuReading / Payment
+├── seed.py             # 초기 풀이 상품 시드 (캐릭터: 재록·연화·월하)
 ├── auth.py             # 회원가입 / 로그인 / 로그아웃 (Blueprint)
-├── payment.py          # 토스페이먼츠 샌드박스 결제 (Blueprint)
-├── web_utils.py        # 세션 사용자 / login_required / 상품 정의
+├── payment.py          # 토스페이먼츠 샌드박스 결제 — Product 기반 (Blueprint)
+├── web_utils.py        # 세션 사용자 / login_required / 상품 접근 권한
 ├── saju/
 │   ├── calendar_util.py # 만세력: 음양력 변환, 절기(ephem), 일주(JDN)
 │   ├── engine.py        # 사주팔자 계산 (년/월/일/시주, 오행)
-│   └── interpret.py     # 규칙 기반 해설
+│   ├── interpret.py     # 규칙 기반 해설
+│   └── product_config.py# 상품별 해설 구성(섹션·캐릭터 멘트·집중 조언)
 ├── templates/          # Jinja2 (base 상속, design.png 시안)
 ├── static/css/style.css# 디자인 시스템 (사주담 팔레트)
 └── tests/              # pytest (engine / interpret / web)

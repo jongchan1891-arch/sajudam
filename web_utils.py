@@ -1,16 +1,32 @@
 # -*- coding: utf-8 -*-
-"""웹 공용 유틸: 세션 사용자, 로그인 보호 데코레이터, 상품 정의."""
+"""웹 공용 유틸: 세션 사용자, 로그인 보호 데코레이터, 상품 접근 권한."""
 from functools import wraps
 
 from flask import session, redirect, url_for, flash, g
 
-from models import db, User
+from models import db, User, Payment, SajuReading
 
-# 결제 상품 정의: key -> (이름, 금액원)
-PRODUCTS = {
-    "basic": {"name": "기본 사주 해설", "amount": 9900},
-    "premium": {"name": "프리미엄 종합 사주", "amount": 29900},
-}
+
+def has_paid(user, product) -> bool:
+    """유료 상품 이용 권한: 무료 상품은 항상 True, 유료는 DONE 결제 보유 여부."""
+    if product.price == 0:
+        return True
+    if user is None:
+        return False
+    return (
+        Payment.query.filter_by(
+            user_id=user.id, product_id=product.id, status="DONE"
+        ).count() > 0
+    )
+
+
+def has_reading(user, product) -> bool:
+    """리뷰 자격 (US-018): 해당 상품 풀이를 실제로 받은 회원인지."""
+    if user is None:
+        return False
+    return (
+        SajuReading.query.filter_by(user_id=user.id, product_id=product.id).count() > 0
+    )
 
 
 def current_user():
