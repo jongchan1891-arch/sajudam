@@ -111,6 +111,19 @@ def test_guest_home_shows_fortune_cta(client):
     assert "생년월일만 입력하면" in body
 
 
+# ---- 쿠팡 배너 (결과 화면에만 1개) --------------------------------------
+def test_fortune_result_has_one_coupang_banner(client):
+    body = client.get("/today?y=1990&m=6&d=15").data.decode("utf-8")
+    assert body.count("ads-partners.coupang.com/g.js") == 1
+    # 다른 생년월일로 보기 버튼 아래 배치
+    assert body.index("다른 생년월일로 보기") < body.index("ads-partners.coupang.com/g.js")
+
+
+def test_fortune_form_has_no_coupang_banner(client):
+    body = client.get("/today").data.decode("utf-8")
+    assert "coupang" not in body.lower()
+
+
 # ---- 퍼널 (재록 → 재물운 상품) -----------------------------------------
 def test_fortune_funnel_links_money_product(client):
     body = client.get("/today?y=1990&m=6&d=15").data.decode("utf-8")

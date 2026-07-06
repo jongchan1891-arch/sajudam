@@ -49,6 +49,8 @@
   <a href="{{ url_for('today_fortune') }}" class="btn btn-ghost">다른 생년월일로 보기</a>
 </div>
 
+{% include "partials/coupang_banner.html" %}
+
 {% else %}
 <section class="card form-card">
   <h2 class="card-title">생년월일 입력 <span class="subtle">(양력)</span></h2>
