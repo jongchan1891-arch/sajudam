@@ -26,5 +26,8 @@ __pycache__/
 *.pyc
 .pytest_cache/
 
+# 환경변수 (API 키 — 절대 커밋 금지)
+.env
+
 # Claude Code 로컬 설정
 .claude/settings.local.json

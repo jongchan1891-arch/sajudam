@@ -5,6 +5,23 @@ import os
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 
 
+def _load_dotenv():
+    """.env 파일이 있으면 환경변수로 로드 (이미 설정된 값은 우선)."""
+    path = os.path.join(BASE_DIR, ".env")
+    if not os.path.exists(path):
+        return
+    with open(path, encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            if not line or line.startswith("#") or "=" not in line:
+                continue
+            key, _, value = line.partition("=")
+            os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
+
+
+_load_dotenv()
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-saju-secret-change-me")
     SQLALCHEMY_DATABASE_URI = os.environ.get(
@@ -22,8 +39,13 @@ class Config:
     )
     TOSS_CONFIRM_URL = "https://api.tosspayments.com/v1/payments/confirm"
 
+    # 고민상담 (US-020) — 키는 환경변수/.env로만 주입. 코드·커밋에 절대 노출 금지.
+    GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+    GEMINI_MODEL = os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+
 
 class TestConfig(Config):
     TESTING = True
     SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     WTF_CSRF_ENABLED = False
+    GEMINI_API_KEY = ""  # 테스트는 항상 키 없는 환경 기준 (필요 시 개별 주입)

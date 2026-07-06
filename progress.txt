@@ -1,8 +1,8 @@
 사주담 (SajuDam) — 진행 기록 / 검증 근거
 ==========================================
 
-상태: 전체 스토리 US-001~US-010, US-012~US-019(v2) 인수조건 개별 검증 완료 (증거 기반)
-테스트: pytest 66/66 PASS (engine 12, interpret 4, web 20, products 19, daily 11)
+상태: 전체 스토리 US-001~US-010, US-012~US-020(v2) 인수조건 개별 검증 완료 (증거 기반)
+테스트: pytest 82/82 PASS (engine 12, interpret 4, web 20, products 19, daily 13, counsel 14)
 실행: python app.py → 200 (기본 5000, 데모 확인은 PORT=5001 사용, 5000은 기존 크롤러 앱 점유)
 
 핵심 구현
@@ -87,6 +87,21 @@ US-019 오늘의 운세 (2026-07-07)
 - KST 기준 오늘: utcnow()+9h (Render는 UTC라 필수).
 - 검증: test_daily 11건(동일입력 동일결과·열흘간 변주·풀 크기·폼/자동 접근·퍼널 링크)
   + 스크린샷 3종(v3-*) NO-HSCROLL PASS.
+
+US-020 달님 도령 고민상담 (2026-07-07)
+---------------------------------------
+- counsel.py Blueprint: Gemini REST(generateContent, x-goog-api-key 헤더) 직접 호출
+  (신규 의존성 없음). 키는 GEMINI_API_KEY 환경변수/.env만 — config.py에 dotenv-lite
+  로더 추가(.env는 gitignore). 키 없으면 "준비 중" 폴백(서버 정상).
+- 페르소나: SYSTEM_PROMPT — 공감 먼저/유머 한 스푼(고민 조롱 금지)/단단한 한 문장/
+  일상 비유/질문 마무리/단정 예언 금지/의료·법률 전문가 권고. 사주 개인화는
+  최근 풀이 이력(result_json)에서 일간+오행 분포를 컨텍스트로 주입.
+- 안전 최우선: CRISIS_PATTERNS 감지 → API 미호출·횟수 미차감·109/1577-0199 안내.
+- 남용 방지: 로그인 필수, KST 기준 1인 3회/일(CounselLog — user_id/시각만, 내용
+  미저장), 500자 제한, 실패 시 횟수 미차감 + 친절 안내.
+- UI: 야경 배너(카피 오버레이), 답장 말풍선+프로필, JS 로딩(dalnim_writing),
+  글자수 카운터, 면책 문구, 재물 키워드 시에만 재록 퍼널, 답변 후에만 쿠팡 배너.
+- 미완: 실제 Gemini 샘플 답변 3종(직장/연애/돈) 생성은 키 주입 후 진행 예정.
 
 학습/패턴
 ---------

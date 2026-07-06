@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block title %}달님 도령의 고민상담{% endblock %}
+{% block content %}
+
+<section class="counsel-hero">
+  <img src="{{ url_for('static', filename='img/products/dalnim_banner.jpg') }}" alt="달님 도령">
+  <div class="ch-copy">
+    <p class="hero-kicker">月下 相談</p>
+    <h1>달님 도령의 고민상담</h1>
+    <p>"무슨 고민이든, 달이 지기 전에 들어드립니다."</p>
+  </div>
+</section>
+
+{% if crisis %}
+<!-- 안전 안내 (상담 답변 대신 표시) -->
+<section class="card counsel-card crisis-card">
+  <h2 class="card-title">마음이 많이 힘드셨지요</h2>
+  <p>
+    편지를 읽고 달님 도령이 붓을 내려놓았습니다. 지금 느끼시는 무게는
+    혼자 들기엔 너무 무거운 것이라, 이야기를 잘 들어줄 수 있는 분들을
+    소개해 드리는 것이 도리라고 생각했어요.
+  </p>
+  <div class="crisis-lines">
+    <p><b>자살예방 상담전화</b> <a class="link" href="tel:109">109</a> (24시간, 국번 없이)</p>
+    <p><b>정신건강 위기상담</b> <a class="link" href="tel:1577-0199">1577-0199</a> (24시간)</p>
+  </div>
+  <p>
+    전화가 어렵다면 가까운 사람에게 이 마음을 보여주는 것부터 시작해 보세요.
+    당신의 이야기는 들을 가치가 있습니다.
+  </p>
+</section>
+{% endif %}
+
+{% if answer %}
+<!-- 답변 말풍선 -->
+<section class="card counsel-card">
+  <div class="worry-echo">
+    <span class="we-label">보낸 고민</span>
+    <p>{{ worry }}</p>
+  </div>
+  <div class="counsel-answer">
+    <img class="ca-profile" src="{{ url_for('static', filename='img/products/dalnim_profile.jpg') }}" alt="달님 도령">
+    <div class="ca-bubble">
+      <b>달님 도령의 답장</b>
+      <p>{{ answer }}</p>
+    </div>
+  </div>
+  {% if show_pro_help %}
+  <p class="hint">※ 의료·법률이 얽힌 고민은 해당 분야 전문가와의 상담을 꼭 함께 받아보세요.</p>
+  {% endif %}
+  {% if show_money_funnel %}
+  <a class="counsel-money-funnel" href="{{ url_for('product_detail', slug='jaerok-money') }}">
+    재물 고민이라면 → <b>재록 선생의 재물운 심층풀이</b> 보러 가기
+  </a>
+  {% endif %}
+</section>
+{% endif %}
+
+{% if not crisis %}
+<!-- 고민 입력 -->
+<section class="card counsel-card">
+  {% if not ready %}
+  <div class="counsel-notready">
+    <b>달님 도령이 붓을 준비 중입니다</b>
+    <p>고민상담 코너는 곧 문을 엽니다. 조금만 기다려 주세요.</p>
+  </div>
+  {% elif not current_user %}
+  <p class="hint center">고민상담은 회원에게만 열려 있어요.
+    <a class="link" href="{{ url_for('auth.login') }}">로그인</a> 또는
+    <a class="link" href="{{ url_for('auth.signup') }}">회원가입</a> 후 이용해 주세요.
+  </p>
+  {% else %}
+  <h2 class="card-title">{{ "다른 고민도 있으신가요?" if answer else "고민을 적어 주세요" }}
+    <span class="subtle">오늘 남은 상담 {{ remaining }}회</span>
+  </h2>
+  <form method="post" action="{{ url_for('counsel.ask') }}" id="counselForm">
+    <div class="field">
+      <textarea name="worry" id="worryInput" rows="5" maxlength="{{ max_len }}" required
+                placeholder="직장, 연애, 돈, 사람… 무엇이든 좋아요. 달님 도령에게 편지를 쓰듯 적어 주세요."></textarea>
+      <p class="hint" style="text-align:right"><span id="charCount">0</span> / {{ max_len }}자</p>
+    </div>
+    <button type="submit" class="btn btn-primary btn-block" {% if remaining <= 0 %}disabled{% endif %}>
+      {{ "오늘 상담이 모두 끝났어요 (내일 다시!)" if remaining <= 0 else "달님 도령에게 보내기" }}
+    </button>
+  </form>
+  <!-- 로딩: 답장 생성 중 -->
+  <div class="counsel-loading" id="counselLoading" hidden>
+    <img src="{{ url_for('static', filename='img/products/dalnim_writing.jpg') }}" alt="">
+    <p>달님 도령이 답장을 쓰고 있어요...</p>
+  </div>
+  {% endif %}
+</section>
+{% endif %}
+
+<p class="hint center">본 상담은 사주 기반 조언으로 전문 상담을 대체하지 않습니다.</p>
+
+{% if answer %}
+{% include "partials/coupang_banner.html" %}
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const form = document.getElementById('counselForm');
+  if (form) {
+    const input = document.getElementById('worryInput');
+    const count = document.getElementById('charCount');
+    input.addEventListener('input', () => { count.textContent = input.value.length; });
+    form.addEventListener('submit', () => {
+      form.hidden = true;
+      document.getElementById('counselLoading').hidden = false;
+    });
+  }
+</script>
+{% endblock %}

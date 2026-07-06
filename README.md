@@ -65,6 +65,18 @@ pytest -q
 > 실제 서비스 시 `config.py`의 `TOSS_CLIENT_KEY`/`TOSS_SECRET_KEY`를 본인 키로 교체하세요
 > (환경변수 `TOSS_CLIENT_KEY`, `TOSS_SECRET_KEY`, `SECRET_KEY`, `DATABASE_URL` 지원).
 
+## 고민상담 (달님 도령) — Gemini API 키 설정
+고민상담 코너는 Google Gemini API를 사용합니다. **키는 반드시 환경변수로만 주입하세요.**
+코드나 커밋에 키를 넣지 마세요 (`.env`는 .gitignore에 포함되어 있습니다).
+
+- **로컬**: 프로젝트 루트에 `.env` 파일 생성
+  ```
+  GEMINI_API_KEY=본인의_키
+  ```
+- **Render**: 대시보드 → 해당 서비스 → **Environment** 탭 → `GEMINI_API_KEY` 추가 후 재배포
+- 키가 없으면 고민상담 코너는 "준비 중"으로 표시되며 나머지 기능은 정상 동작합니다.
+- 모델은 `GEMINI_MODEL` 환경변수로 변경 가능 (기본: `gemini-2.5-flash`).
+
 ## 구조
 ```
 사주/

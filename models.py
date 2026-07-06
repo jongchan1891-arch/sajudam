@@ -62,6 +62,14 @@ class Review(db.Model):
     user = db.relationship("User", backref="reviews", lazy=True)
 
 
+class CounselLog(db.Model):
+    """고민상담 사용 기록 (US-020) — 남용 방지용 횟수만 기록, 고민 내용은 저장하지 않음."""
+    __tablename__ = "counsel_logs"
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False, index=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+
 class SajuReading(db.Model):
     __tablename__ = "saju_readings"
     id = db.Column(db.Integer, primary_key=True)

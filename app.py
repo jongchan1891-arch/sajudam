@@ -51,8 +51,10 @@ def create_app(config_object=Config):
     db.init_app(app)
 
     from auth import bp as auth_bp
+    from counsel import bp as counsel_bp
     from payment import bp as payment_bp
     app.register_blueprint(auth_bp)
+    app.register_blueprint(counsel_bp)
     app.register_blueprint(payment_bp)
 
     with app.app_context():
