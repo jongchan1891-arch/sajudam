@@ -119,6 +119,30 @@ US-021 PostgreSQL 전환 (2026-07-07)
 - 전체 pytest 86 passed + 1 skipped (라이브 테스트, 환경변수 없을 때).
 - README: Neon 무료 티어 연결 절차 + Render Environment 등록 + 정규화 안내 추가.
 
+US-022 유료 풀이 Gemini 장문 리포트 (2026-07-07)
+-------------------------------------------------
+- 유료 4종 전체 적용: jaerok-money(재물)/yeonhwa-love(연애)/wolha-rejoin(재회)/
+  premium-total(종합). 무료(jaerok-free)는 기존 규칙 기반 템플릿 유지(상품성 격차).
+- report_service.py: REPORT_CONFIGS(상품별 페르소나+5섹션: 원국 총론→강한 오행의 길→
+  약한 오행의 주의→시기 분석→처방 3가지). 공통 규칙 — 존댓말, 단정 예언 금지,
+  데이터 근거 서술, 대운 간지 창작 금지(엔진 미계산 — 1차 샘플에서 "병술대운" 지어냄
+  발견 후 규칙 추가), 마크다운 금지+검증단계 ** 제거. min_chars 1500(프리미엄 2000)
+  미달/형식불량 = 실패 처리. Gemini JSON 모드(responseMimeType), maxTokens 8192.
+- models.py: SajuReport 새 테이블(reading 1:1 unique, status PENDING/DONE,
+  content_json) — 새 테이블이라 create_all만으로 Neon 배포 가능(ALTER 불필요).
+- app.py: /calculate 유료면 ensure_report→report.html, /reading/<id> 저장본 표시
+  (Gemini 재호출 금지, 리포트 행 없는 과거 건은 기존 composed 폴백),
+  POST /reading/<id>/report 재시도(소유자만). 월하 특별규칙: 재회 보장 표현 금지.
+- UI: report.html — 팔자표/오행 partial 재활용(partials/palja_card·ohaeng_card로
+  추출, result.html도 include로 전환), 캐릭터 프로필 헤더, ①~⑤ 섹션 카드,
+  인쇄/저장 버튼 + @media print(네비/배너/버튼 숨김). 유료 리포트엔 쿠팡 배너 없음.
+- 실패 UX: 생성 실패 시 PENDING 저장 + "리포트 다시 생성하기" 버튼 (빈 화면 금지).
+- 테스트: test_report.py 10건(생성/팔자표 재활용/타상품 페르소나/저장본 재호출금지/
+  실패→재시도/글자수 미달/소유자 검증/무료 불변/config 무결성) + 기존 2건 갱신
+  (test_postgres 테이블 목록, test_products US-022 반영). pytest 96/96 + 1 skip.
+- 실제 Gemini 샘플(1990-06-15 12시 남, 경오 임오 신해 갑오): 2,435자 5섹션 DONE,
+  29.2s. 재록 페르소나·오행 근거 서술 확인.
+
 학습/패턴
 ---------
 - korean_lunar_calendar는 일주 갑자를 한글 문자열로만 노출 → JDN 자체계산+오프셋 보정이 안정적.

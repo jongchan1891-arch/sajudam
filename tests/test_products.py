@@ -64,13 +64,21 @@ def test_composition_differs_by_product(client, app, monkeypatch):
     free_body = _calc(client, "jaerok-free").data.decode("utf-8")
     _signup(client, "buyer@b.com")
     _pay_done(client, app, monkeypatch, "jaerok-money")
+    # 유료는 US-022부터 Gemini 장문 리포트 — 호출 모킹
+    import report_service
+    filler = "곳간의 물꼬가 트여 흐름이 굵어지는 사주입니다. " * 60
+    monkeypatch.setattr(
+        report_service, "_call_gemini_json",
+        lambda *a, **k: (True, {k2: filler[:400] for k2 in
+                                ["grit", "inflow", "leak", "timing", "rx"]}),
+    )
     money_body = _calc(client, "jaerok-money").data.decode("utf-8")
 
-    # 같은 입력, 다른 상품 → 다른 구성 (US-014)
+    # 같은 입력, 다른 상품 → 다른 구성 (US-014 / US-022)
     assert "재록이의 무료 사주 맛보기" in free_body
-    assert "심층풀이에서" in free_body            # 무료 상품 아웃트로
-    assert "곳간 조언" not in free_body            # 집중 조언은 유료 전용
-    assert "재록이의 곳간 조언" in money_body      # 유료 상품 집중 조언
+    assert "심층풀이에서" in free_body            # 무료 상품 아웃트로 (기존 유지)
+    assert "타고난 재물 그릇" not in free_body     # 리포트 섹션은 유료 전용
+    assert "타고난 재물 그릇" in money_body        # 유료 = 장문 리포트 (US-022)
     assert "재록이의 재물운 심층풀이" in money_body
 
 

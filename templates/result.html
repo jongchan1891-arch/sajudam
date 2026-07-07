@@ -12,50 +12,9 @@
   </p>
 </section>
 
-<section class="card">
-  <h2 class="card-title">사주 원국 <span class="subtle">(년·월·일·시)</span></h2>
-  <div class="palja-table">
-    <table>
-      <thead>
-        <tr><th></th><th>시주</th><th>일주</th><th>월주</th><th>년주</th></tr>
-      </thead>
-      <tbody>
-        <tr class="row-gan">
-          <th>천간</th>
-          {% for key in ['hour','day','month','year'] %}
-            {% set p = r[key] %}
-            <td>{% if p %}<span class="gz gz-{{ p.gan_ohaeng }}"><b>{{ p.gan_hanja }}</b><em>{{ p.gan }}</em></span>{% else %}<span class="gz gz-none">—</span>{% endif %}</td>
-          {% endfor %}
-        </tr>
-        <tr class="row-ji">
-          <th>지지</th>
-          {% for key in ['hour','day','month','year'] %}
-            {% set p = r[key] %}
-            <td>{% if p %}<span class="gz gz-{{ p.ji_ohaeng }}"><b>{{ p.ji_hanja }}</b><em>{{ p.ji }}</em></span>{% else %}<span class="gz gz-none">—</span>{% endif %}</td>
-          {% endfor %}
-        </tr>
-      </tbody>
-    </table>
-  </div>
-  <p class="palja-line">팔자: <b>{{ palja }}</b> · 일간(日干) <b class="accent">{{ r.il_gan }}({{ r.il_gan_ohaeng }})</b></p>
-  {% if not r.hour_known %}<p class="hint">※ 태어난 시간을 모르셔서 시주는 제외하고 해석했습니다.</p>{% endif %}
-</section>
+{% include "partials/palja_card.html" %}
 
-<section class="card">
-  <h2 class="card-title">오행 분석</h2>
-  <div class="ohaeng-bars">
-    {% set omax = r.ohaeng_count.values()|max %}
-    {% for o in ['목','화','토','금','수'] %}
-      {% set c = r.ohaeng_count[o] %}
-      <div class="ohaeng-bar">
-        <span class="oh-label oh-{{ o }}">{{ o }}</span>
-        <span class="oh-track"><span class="oh-fill oh-fill-{{ o }}" style="width: {{ (c / (omax if omax>0 else 1) * 100)|round }}%"></span></span>
-        <span class="oh-count">{{ c }}</span>
-      </div>
-    {% endfor %}
-  </div>
-  <p class="ohaeng-text">{{ reading.ohaeng_analysis.text }}</p>
-</section>
+{% include "partials/ohaeng_card.html" %}
 
 {% include "partials/coupang_banner.html" %}
 

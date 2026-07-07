@@ -1,0 +1,16 @@
+{# 오행 분석 카드 — 사용: result.html / report.html (변수 r, reading) #}
+<section class="card">
+  <h2 class="card-title">오행 분석</h2>
+  <div class="ohaeng-bars">
+    {% set omax = r.ohaeng_count.values()|max %}
+    {% for o in ['목','화','토','금','수'] %}
+      {% set c = r.ohaeng_count[o] %}
+      <div class="ohaeng-bar">
+        <span class="oh-label oh-{{ o }}">{{ o }}</span>
+        <span class="oh-track"><span class="oh-fill oh-fill-{{ o }}" style="width: {{ (c / (omax if omax>0 else 1) * 100)|round }}%"></span></span>
+        <span class="oh-count">{{ c }}</span>
+      </div>
+    {% endfor %}
+  </div>
+  <p class="ohaeng-text">{{ reading.ohaeng_analysis.text }}</p>
+</section>

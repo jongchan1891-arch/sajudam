@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}{{ product.name }} 리포트{% endblock %}
+{% block content %}
+<section class="result-head">
+  <p class="hero-kicker">四柱八字 · 深層</p>
+  <h1 class="result-title">{% if name %}{{ name }} 님의 {% endif %}{{ product.name }}</h1>
+  <p class="result-meta">
+    양력 {{ r.solar_date }}
+    {% if r.lunar %}· 음력 {{ r.lunar[0] }}-{{ '%02d'|format(r.lunar[1]) }}-{{ '%02d'|format(r.lunar[2]) }}{% endif %}
+    {% if r.gender %}· {{ r.gender }}{% endif %}
+    · {{ r.year_zodiac }}띠
+  </p>
+</section>
+
+<section class="card report-master">
+  <span class="report-avatar">
+    {% if profile %}
+      <img src="{{ url_for('static', filename='img/products/' + profile) }}"
+           alt="{{ character }}" onerror="this.remove()">
+    {% else %}☯{% endif %}
+  </span>
+  <div>
+    <b>{{ character }}</b>
+    <p>{{ product.tagline }}</p>
+  </div>
+</section>
+
+{% include "partials/palja_card.html" %}
+
+{% include "partials/ohaeng_card.html" %}
+
+{% if sections %}
+  {% set nums = ['①','②','③','④','⑤'] %}
+  {% for s in sections %}
+  <section class="card report-sec">
+    <h2 class="card-title"><span class="report-num">{{ nums[loop.index0] }}</span> {{ s.title }}</h2>
+    <p class="report-body{% if s.key == 'rx' %} report-rx{% endif %}">{{ s.body }}</p>
+  </section>
+  {% endfor %}
+
+  <div class="result-actions no-print">
+    <button type="button" class="btn btn-ghost" onclick="window.print()">인쇄 / 저장</button>
+    <a href="{{ url_for('mypage') }}" class="btn btn-ghost">마이페이지</a>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">다른 풀이 상품 보기</a>
+  </div>
+  <p class="hint center no-print">이 풀이가 마음에 드셨다면
+    <a class="link" href="{{ url_for('product_detail', slug=product.slug) }}#reviews">리뷰</a>를 남겨주세요.
+  </p>
+{% else %}
+  <section class="card report-pending">
+    <h2 class="card-title">{{ character }}이(가) 리포트를 쓰는 중입니다</h2>
+    <p>사주 데이터는 안전하게 저장되었고, 리포트 생성이 잠시 지연되고 있습니다.<br>
+       아래 버튼으로 다시 시도해 주세요. 결제하신 풀이는 사라지지 않으며,
+       마이페이지에서 언제든 다시 시도할 수 있습니다.</p>
+    <form method="post" action="{{ url_for('report_retry', reading_id=reading_id) }}">
+      <button type="submit" class="btn btn-primary">리포트 다시 생성하기</button>
+    </form>
+    <p class="hint">계속 실패하면 잠시 후 다시 시도해 주세요. 문제가 이어지면 사주담이 확인하고 있으니 안심하세요.</p>
+  </section>
+  <div class="result-actions no-print">
+    <a href="{{ url_for('mypage') }}" class="btn btn-ghost">마이페이지</a>
+    <a href="{{ url_for('index') }}" class="btn btn-primary">홈으로</a>
+  </div>
+{% endif %}
+{% endblock %}

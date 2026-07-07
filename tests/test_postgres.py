@@ -12,6 +12,7 @@ from models import db
 
 EXPECTED_TABLES = {
     "users", "products", "reviews", "counsel_logs", "saju_readings", "payments",
+    "saju_reports",
 }
 
 

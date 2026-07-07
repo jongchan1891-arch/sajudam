@@ -9,8 +9,9 @@ from flask import (
 
 from sqlalchemy import func
 
+import report_service
 from config import Config
-from models import db, SajuReading, Payment, Product, Review
+from models import db, SajuReading, SajuReport, Payment, Product, Review
 from saju.daily import compute_daily_fortune
 from saju.engine import calculate_saju
 from saju.interpret import interpret
@@ -256,6 +257,12 @@ def create_app(config_object=Config):
         db.session.add(rec)
         db.session.commit()
 
+        # 유료 리포트 상품 (US-022): Gemini 장문 리포트 생성 → 저장 → 표시
+        if product is not None:
+            report = report_service.ensure_report(rec, product)
+            if report is not None:
+                return _render_report(rec, product, report, result_dict, reading, palja, name)
+
         composed = compose_reading(product.slug if product else None, reading, name)
         return render_template(
             "result.html",
@@ -295,6 +302,16 @@ def create_app(config_object=Config):
             return redirect(url_for("mypage"))
         payload = json.loads(rec.result_json)
         rec_product = db.session.get(Product, rec.product_id) if rec.product_id else None
+
+        # 리포트가 있는 풀이는 저장본 표시 (US-022) — Gemini 재호출 없음
+        if rec_product is not None:
+            report = SajuReport.query.filter_by(reading_id=rec.id).first()
+            if report is not None:
+                return _render_report(
+                    rec, rec_product, report,
+                    payload["result"], payload["reading"], rec.palja, rec.name,
+                )
+
         composed = compose_reading(
             rec_product.slug if rec_product else None, payload["reading"], rec.name,
         )
@@ -302,6 +319,35 @@ def create_app(config_object=Config):
             "result.html",
             name=rec.name, r=payload["result"], reading=payload["reading"],
             palja=rec.palja, product=rec_product, composed=composed,
+        )
+
+    @app.route("/reading/<int:reading_id>/report", methods=["POST"])
+    @login_required
+    def report_retry(reading_id):
+        """리포트 재시도 (US-022) — 소유자만, 저장본 있으면 재호출 없이 표시."""
+        user = current_user()
+        rec = db.get_or_404(SajuReading, reading_id)
+        if rec.user_id != user.id:
+            flash("접근 권한이 없습니다.", "danger")
+            return redirect(url_for("mypage"))
+        product = db.session.get(Product, rec.product_id) if rec.product_id else None
+        if product is None or product.slug not in report_service.REPORT_CONFIGS:
+            return redirect(url_for("reading_detail", reading_id=rec.id))
+
+        report = report_service.ensure_report(rec, product)
+        if report.status == "DONE":
+            flash("리포트가 완성되었습니다.", "success")
+        else:
+            flash("리포트 생성이 또 지연되었습니다. 잠시 후 다시 시도해 주세요.", "warning")
+        return redirect(url_for("reading_detail", reading_id=rec.id))
+
+    def _render_report(rec, product, report, r, reading, palja, name):
+        cfg = report_service.REPORT_CONFIGS[product.slug]
+        return render_template(
+            "report.html",
+            name=name, r=r, reading=reading, palja=palja, product=product,
+            sections=report_service.report_sections(report),
+            character=cfg["character"], profile=cfg["profile"], reading_id=rec.id,
         )
 
     return app

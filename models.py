@@ -70,6 +70,27 @@ class CounselLog(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
 
+class SajuReport(db.Model):
+    """유료 풀이 Gemini 장문 리포트 (US-022) — reading 1건당 1개, 저장본 재사용."""
+    __tablename__ = "saju_reports"
+    id = db.Column(db.Integer, primary_key=True)
+    reading_id = db.Column(
+        db.Integer, db.ForeignKey("saju_readings.id"),
+        nullable=False, unique=True, index=True,
+    )
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    product_id = db.Column(db.Integer, db.ForeignKey("products.id"), nullable=False)
+    status = db.Column(db.String(20), nullable=False, default="PENDING")  # PENDING/DONE
+    content_json = db.Column(db.Text)     # {"sections": [{"key","title","body"}...]}
+    model = db.Column(db.String(50))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    reading = db.relationship(
+        "SajuReading", backref=db.backref("report", uselist=False), lazy=True,
+    )
+
+
 class SajuReading(db.Model):
     __tablename__ = "saju_readings"
     id = db.Column(db.Integer, primary_key=True)
