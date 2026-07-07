@@ -39,10 +39,14 @@
   {% endfor %}
 
   <div class="result-actions no-print">
-    <button type="button" class="btn btn-ghost" onclick="window.print()">인쇄 / 저장</button>
+    <button type="button" id="print-btn" class="btn btn-ghost">인쇄 / 저장</button>
     <a href="{{ url_for('mypage') }}" class="btn btn-ghost">마이페이지</a>
     <a href="{{ url_for('index') }}" class="btn btn-primary">다른 풀이 상품 보기</a>
   </div>
+  <p class="hint center no-print" id="print-help" hidden>
+    지금 쓰시는 브라우저는 바로 인쇄를 지원하지 않아요.
+    브라우저 메뉴(⋮ 또는 공유 버튼)에서 <b>인쇄</b> 또는 <b>PDF로 저장</b>을 선택해 주세요.
+  </p>
   <p class="hint center no-print">이 풀이가 마음에 드셨다면
     <a class="link" href="{{ url_for('product_detail', slug=product.slug) }}#reviews">리뷰</a>를 남겨주세요.
   </p>
@@ -62,4 +66,23 @@
     <a href="{{ url_for('index') }}" class="btn btn-primary">홈으로</a>
   </div>
 {% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script>
+  (function () {
+    var btn = document.getElementById("print-btn");
+    if (!btn) return;
+    // 삼성 인터넷·인앱 브라우저는 window.print()가 있어도 무반응 → 안내로 대체
+    var noPrint = /SamsungBrowser|KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i
+      .test(navigator.userAgent) || typeof window.print !== "function";
+    btn.addEventListener("click", function () {
+      if (noPrint) {
+        document.getElementById("print-help").hidden = false;
+        return;
+      }
+      window.print();
+    });
+  })();
+</script>
 {% endblock %}

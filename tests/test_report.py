@@ -84,6 +84,10 @@ def test_paid_calc_creates_done_report(client, app, monkeypatch):
     assert "타고난 재물 그릇" in body
     assert "재록 선생의 처방" in body
     assert "인쇄 / 저장" in body
+    # 인쇄 미지원 브라우저(삼성 인터넷·인앱) 대응: 버튼 스크립트 + 대체 안내
+    assert 'id="print-btn"' in body
+    assert 'id="print-help"' in body
+    assert "SamsungBrowser" in body
     with app.app_context():
         report = SajuReport.query.one()
         assert report.status == "DONE"
