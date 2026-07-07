@@ -22,11 +22,22 @@ def _load_dotenv():
 _load_dotenv()
 
 
+def _normalize_db_url(url: str) -> str:
+    """postgres:// 접두어를 postgresql://로 정규화.
+
+    Render/Heroku/Neon 등이 주는 postgres:// 스킴을 SQLAlchemy 2.x는
+    인식하지 못하므로(psycopg2 방언은 postgresql://만) 치환한다.
+    """
+    if url.startswith("postgres://"):
+        url = "postgresql://" + url[len("postgres://"):]
+    return url
+
+
 class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY", "dev-saju-secret-change-me")
-    SQLALCHEMY_DATABASE_URI = os.environ.get(
+    SQLALCHEMY_DATABASE_URI = _normalize_db_url(os.environ.get(
         "DATABASE_URL", "sqlite:///" + os.path.join(BASE_DIR, "saju.db")
-    )
+    ))
     SQLALCHEMY_TRACK_MODIFICATIONS = False
 
     # 토스페이먼츠 테스트(샌드박스) 키 — 공개된 테스트 키.

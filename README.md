@@ -77,6 +77,27 @@ pytest -q
 - 키가 없으면 고민상담 코너는 "준비 중"으로 표시되며 나머지 기능은 정상 동작합니다.
 - 모델은 `GEMINI_MODEL` 환경변수로 변경 가능 (기본: `gemini-2.5-flash`).
 
+## 배포 DB — PostgreSQL (Neon)
+로컬은 SQLite(`saju.db`)로 충분하지만, **Render 등 컨테이너 배포 환경은 파일시스템이
+휘발성이라 재배포 시 SQLite 데이터가 초기화됩니다.** 배포 시에는 외부 PostgreSQL을
+`DATABASE_URL` 환경변수로 연결하세요. (미설정 시 자동으로 로컬 SQLite 폴백)
+
+**Neon 무료 티어 기준 연결 절차:**
+1. [neon.tech](https://neon.tech) 가입 → 프로젝트 생성 (리전은 서비스와 가까운 곳, 예: `ap-southeast-1`)
+2. 대시보드 → **Connect** → 연결 문자열 복사
+   ```
+   postgresql://USER:PASSWORD@ep-xxx-pooler.REGION.aws.neon.tech/DBNAME?sslmode=require
+   ```
+3. Render 대시보드 → 해당 서비스 → **Environment** 탭 → `DATABASE_URL`에 붙여넣기 → 재배포
+4. 첫 기동 시 테이블(`db.create_all`)과 상품 시드가 자동 생성됩니다 (멱등 — 재기동해도 중복 없음)
+5. 회원가입 → 재배포 → 동일 계정 로그인으로 데이터 유지를 확인하세요
+
+> `postgres://`로 시작하는 연결 문자열을 받아도 그대로 사용하면 됩니다 —
+> SQLAlchemy 2.x가 요구하는 `postgresql://`로 앱이 자동 정규화합니다 (`config.py`).
+> 로컬에서 Neon에 직접 연결해 보려면 프로젝트 루트 `.env`에 `DATABASE_URL=...`을 넣으세요.
+> 실 Postgres 대상 마이그레이션 테스트는 `TEST_DATABASE_URL` 환경변수 설정 시에만 실행됩니다
+> (`tests/test_postgres.py`, 미설정 시 skip).
+
 ## 구조
 ```
 사주/

@@ -103,6 +103,22 @@ US-020 달님 도령 고민상담 (2026-07-07)
   글자수 카운터, 면책 문구, 재물 키워드 시에만 재록 퍼널, 답변 후에만 쿠팡 배너.
 - 미완: 실제 Gemini 샘플 답변 3종(직장/연애/돈) 생성은 키 주입 후 진행 예정.
 
+US-021 PostgreSQL 전환 (2026-07-07)
+------------------------------------
+- 배경: Render 파일시스템 휘발성 → SQLite(saju.db) 기본값은 재배포 시 회원 데이터 소실.
+- config.py: _normalize_db_url — postgres:// → postgresql:// 치환 (SQLAlchemy 2.x는
+  postgres:// 미인식). DATABASE_URL 없으면 기존 SQLite 폴백 유지.
+- requirements.txt: psycopg2-binary==2.9.11 추가.
+- 첫 실행 자동화 확인: create_app() 내 db.create_all() + seed_products() (slug 멱등)
+  → Neon 첫 연결에서 테이블 6종 + 상품 5종(재록 2: jaerok-free/jaerok-money) 생성 확인.
+- tests/test_postgres.py: 정규화 3건 + 전 모델 DDL postgresql 방언 컴파일 1건 +
+  TEST_DATABASE_URL 있을 때만 실 Postgres create_all/CRUD 라운드트립(없으면 skip).
+- 실 Neon 검증(.env DATABASE_URL): dialect=postgresql/psycopg2, 테이블 자동 생성,
+  시드 멱등, 가입(302) → 새 앱 인스턴스(재시작 시뮬) → 로그인(302→/) → 사용자 영속
+  확인 후 검증 계정 삭제. TEST_DATABASE_URL 주입 라이브 pytest 5/5.
+- 전체 pytest 86 passed + 1 skipped (라이브 테스트, 환경변수 없을 때).
+- README: Neon 무료 티어 연결 절차 + Render Environment 등록 + 정규화 안내 추가.
+
 학습/패턴
 ---------
 - korean_lunar_calendar는 일주 갑자를 한글 문자열로만 노출 → JDN 자체계산+오프셋 보정이 안정적.
