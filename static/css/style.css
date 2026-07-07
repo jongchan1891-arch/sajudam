@@ -776,3 +776,75 @@ input:focus, select:focus { outline: none; border-color: var(--gold); box-shadow
   .detail-title { font-size: 1.35rem; }
   .rank-item { padding: 8px 6px; }
 }
+
+/* ============================================================
+   가벼운 모션 — 배너 플로트 · 반짝이 · 별 가루 · 카드 리프트
+   transform/opacity만 사용 (컴포지터 전용, 레이아웃·페인트 부담 없음)
+   ============================================================ */
+/* 히어로 별 가루 배경 */
+.store-hero { position: relative; overflow: hidden; }
+.store-hero > * { position: relative; z-index: 1; }
+.hero-sky { position: absolute; inset: 0; z-index: 0; pointer-events: none; }
+.hero-sky .fall {
+  position: absolute; top: -14px; font-style: normal; color: var(--gold);
+  text-shadow: 0 0 6px rgba(179, 146, 92, 0.5); opacity: 0;
+  animation: star-fall linear infinite;
+}
+.hero-sky .fall:nth-child(1) { left: 8%;  font-size: 9px;  animation-duration: 12s; animation-delay: -3s; }
+.hero-sky .fall:nth-child(2) { left: 24%; font-size: 7px;  animation-duration: 15s; animation-delay: -9s; }
+.hero-sky .fall:nth-child(3) { left: 41%; font-size: 10px; animation-duration: 11s; animation-delay: -6s; }
+.hero-sky .fall:nth-child(4) { left: 58%; font-size: 8px;  animation-duration: 14s; animation-delay: -1s; }
+.hero-sky .fall:nth-child(5) { left: 73%; font-size: 7px;  animation-duration: 16s; animation-delay: -11s; }
+.hero-sky .fall:nth-child(6) { left: 89%; font-size: 9px;  animation-duration: 13s; animation-delay: -5s; }
+@keyframes star-fall {
+  0%   { transform: translate3d(0, 0, 0) rotate(0deg); opacity: 0; }
+  10%  { opacity: 0.5; }
+  80%  { opacity: 0.35; }
+  100% { transform: translate3d(14px, 190px, 0) rotate(60deg); opacity: 0; }
+}
+
+/* 캐릭터 배너 둥실 플로트 + 반짝이 파티클 */
+.avatar-float { position: relative; flex-shrink: 0; display: inline-block; }
+.avatar-float > img { display: block; }
+.float-coin > img { animation: gentle-float 3.6s ease-in-out infinite alternate; }
+.float-moon > img { animation: gentle-float 4.2s ease-in-out infinite alternate; animation-delay: -1.5s; }
+@keyframes gentle-float {
+  from { transform: translateY(2px); }
+  to   { transform: translateY(-4px); }
+}
+.spark {
+  position: absolute; font-style: normal; color: var(--gold); pointer-events: none;
+  text-shadow: 0 0 5px rgba(179, 146, 92, 0.6); opacity: 0;
+  animation: twinkle 2.8s ease-in-out infinite;
+}
+.float-coin .spark:nth-of-type(1) { top: -5px; right: -7px; font-size: 11px; animation-delay: 0.2s; }
+.float-coin .spark:nth-of-type(2) { bottom: 4px; left: -9px; font-size: 8px; animation-delay: 1.2s; }
+.float-coin .spark:nth-of-type(3) { top: 34%; right: -13px; font-size: 7px; animation-delay: 2s; }
+.float-moon .spark:nth-of-type(1) { top: -5px; left: -7px; font-size: 10px; animation-delay: 0.7s; }
+.float-moon .spark:nth-of-type(2) { bottom: -3px; right: -9px; font-size: 8px; animation-delay: 1.8s; }
+@keyframes twinkle {
+  0%, 100% { opacity: 0; transform: scale(0.4) rotate(0deg); }
+  50%      { opacity: 0.9; transform: scale(1) rotate(25deg); }
+}
+
+/* 상품 카드 호버 리프트 (기존 -3px → 부드럽게 -5px + 골드 테두리) */
+.product-card {
+  transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+}
+.product-card:hover {
+  transform: translateY(-5px); box-shadow: var(--shadow);
+  border-color: var(--gold-soft);
+}
+
+/* 모바일: 별 가루 개수 절반 */
+@media (max-width: 768px) {
+  .hero-sky .fall:nth-child(n + 4) { display: none; }
+}
+
+/* 모션 민감 사용자: 모든 모션 정지 */
+@media (prefers-reduced-motion: reduce) {
+  .hero-sky, .spark { display: none; }
+  .float-coin > img, .float-moon > img { animation: none; }
+  .product-card:hover, .feature-card:hover,
+  .fortune-strip:hover, .counsel-strip:hover { transform: none; }
+}
