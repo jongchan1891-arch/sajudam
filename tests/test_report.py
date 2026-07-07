@@ -88,6 +88,10 @@ def test_paid_calc_creates_done_report(client, app, monkeypatch):
     assert 'id="print-btn"' in body
     assert 'id="print-help"' in body
     assert "SamsungBrowser" in body
+    # 공유하기 (US-023): OS 공유 시트 + 클립보드 폴백
+    assert 'id="share-btn"' in body
+    assert "navigator.share" in body
+    assert "navigator.clipboard" in body
     with app.app_context():
         report = SajuReport.query.one()
         assert report.status == "DONE"

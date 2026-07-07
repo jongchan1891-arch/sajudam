@@ -39,6 +39,7 @@
   {% endfor %}
 
   <div class="result-actions no-print">
+    <button type="button" id="share-btn" class="btn btn-ghost">공유하기</button>
     <button type="button" id="print-btn" class="btn btn-ghost">인쇄 / 저장</button>
     <a href="{{ url_for('mypage') }}" class="btn btn-ghost">마이페이지</a>
     <a href="{{ url_for('index') }}" class="btn btn-primary">다른 풀이 상품 보기</a>
@@ -47,6 +48,7 @@
     지금 쓰시는 브라우저는 바로 인쇄를 지원하지 않아요.
     브라우저 메뉴(⋮ 또는 공유 버튼)에서 <b>인쇄</b> 또는 <b>PDF로 저장</b>을 선택해 주세요.
   </p>
+  <p class="hint center no-print" id="share-help" hidden></p>
   <p class="hint center no-print">이 풀이가 마음에 드셨다면
     <a class="link" href="{{ url_for('product_detail', slug=product.slug) }}#reviews">리뷰</a>를 남겨주세요.
   </p>
@@ -82,6 +84,44 @@
         return;
       }
       window.print();
+    });
+  })();
+
+  (function () {
+    // 공유하기 (US-023): 리포트 전문을 OS 공유 시트로 (카카오톡 등)
+    var btn = document.getElementById("share-btn");
+    if (!btn) return;
+    var help = document.getElementById("share-help");
+
+    function buildText() {
+      var lines = [];
+      lines.push("사주담 · " + {{ product.name|tojson }});
+      lines.push({{ (name ~ " 님 · " if name else "")|tojson }} + "팔자: " + {{ palja|tojson }});
+      lines.push("");
+      document.querySelectorAll(".report-sec").forEach(function (sec) {
+        lines.push("[" + sec.querySelector(".card-title").textContent.trim() + "]");
+        lines.push(sec.querySelector(".report-body").textContent.trim());
+        lines.push("");
+      });
+      lines.push("— 사주담 · " + location.origin);
+      return lines.join("\n");
+    }
+
+    function note(msg) { help.textContent = msg; help.hidden = false; }
+
+    btn.addEventListener("click", function () {
+      var text = buildText();
+      if (navigator.share) {
+        navigator.share({ title: "사주담 리포트", text: text }).catch(function () {});
+      } else if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(function () {
+          note("리포트 전문이 복사되었습니다. 카카오톡 등에 붙여넣어 주세요.");
+        }, function () {
+          note("복사에 실패했어요. 화면의 글을 직접 선택해 복사해 주세요.");
+        });
+      } else {
+        note("이 브라우저는 공유를 지원하지 않아요. 화면의 글을 직접 선택해 복사해 주세요.");
+      }
     });
   })();
 </script>
